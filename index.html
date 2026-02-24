@@ -372,24 +372,24 @@
       font-size: 10px;
       font-weight: 800;
       text-transform: uppercase;
-      vertical-align: middle; /* Adjusted for better alignment */
-      margin-left: 6px; /* Adjusted spacing */
+      vertical-align: middle; 
+      margin-left: 6px; 
       box-shadow: 0 2px 4px 1px rgba(0, 0, 0, 0.05);
     }
     .limit-warning {
       color: var(--text-sec); 
       font-size: 13px;
-      margin: -10px 0 15px 0; /* Adjusted margins */
+      margin: -10px 0 15px 0; 
       text-align: center;
     }
     .limit-warning .btn-primary {
-      margin-top: 8px; /* Spacing for button inside warning */
+      margin-top: 8px; 
       padding: 6px 12px;
       font-size: 13px;
     }
     .premium-modal-content {
         text-align: center;
-        padding: 10px; /* Reduced padding for mobile */
+        padding: 10px; 
     }
     .premium-modal-content h3 {
         color: var(--primary);
@@ -401,11 +401,11 @@
         line-height: 1.4;
     }
     .premium-modal-content ul {
-        list-style: disc; /* Use discs for list items */
+        list-style: disc; 
         padding: 0;
         margin: 0 auto 20px auto;
         text-align: left;
-        display: inline-block; /* To center the list itself */
+        display: inline-block; 
         font-size: 14px;
         color: var(--text);
     }
@@ -452,11 +452,6 @@
     // --- ЛОГИКА LITE-ВЕРСИИ ---
     const TRIAL_LIMIT = 3; // Лимит поездок в месяц для Lite-версии
     let isPremium = localStorage.getItem('is_premium') === 'true'; // Статус полной версии
-
-    // Константы для оплаты и активации (СИМУЛЯЦИЯ!)
-    const SBP_PHONE_NUMBER = '79528451318'; // Номер телефона для СБП
-    const SBP_AMOUNT = '199'; // Сумма в рублях
-    const LITE_ACTIVATION_CODE_DEMO = 'ULTIMATEPRO2026'; // Пример кода активации для демонстрации (в реальном приложении он будет уникальным и генерироваться сервером)
     // --- КОНЕЦ ЛОГИКИ LITE-ВЕРСИИ ---
 
     const formatMoney = (num) => new Intl.NumberFormat('ru-RU').format(num) + ' ₽';
@@ -644,9 +639,9 @@
               limitWarningHtml = `<p class="limit-warning">Осталось ${remainingTrips} ${remainingTrips === 1 ? 'поездка' : 'поездок'} в этом месяце.</p>`;
           } else {
               limitWarningHtml = `
-                <p class="limit-warning" style="color:var(--danger);">Достигнут лимит (${TRIAL_LIMIT} поездок)! Для полного доступа к приложению обратитесь к разработчику.</p>
+                <p class="limit-warning" style="color:var(--danger);">Достигнут лимит (${TRIAL_LIMIT} поездок)!</p>
                 <div class="btn-row">
-                    <button class="btn-primary" onclick="showContactDeveloperModal()">Обратиться к разработчику</button>
+                    <button class="btn-primary" onclick="showContactDeveloperPromptModal()">Обратиться к разработчику</button>
                 </div>
               `;
           }
@@ -825,7 +820,7 @@
           const monthData = getMonthData(currentMonth);
           const tripsInMonth = monthData.items.filter(t => t.type === 'trip').length;
           if (tripsInMonth >= TRIAL_LIMIT) {
-              showContactDeveloperModal(); // Показываем модальное окно обращения к разработчику вместо формы
+              showContactDeveloperPromptModal(); // Показываем модальное окно обращения к разработчику вместо формы
               return;
           }
       }
@@ -1009,15 +1004,28 @@
       renderMonthList();
     }
 
+    // Новая упрощенная функция для модального окна обращения к разработчику
+    function showContactDeveloperPromptModal() {
+        const html = `
+            <div class="premium-modal-content">
+                <h3>Полная версия приложения</h3>
+                <p>Для доступа ко всем функциям и снятия ограничений, пожалуйста, обратитесь к разработчику.</p>
+                <div class="btn-row">
+                    <button class="btn-primary" onclick="closeModal()">OK</button>
+                </div>
+            </div>
+        `;
+        document.getElementById('modal-content').innerHTML = html;
+        document.getElementById('modal').classList.add('visible');
+        document.body.classList.add('modal-open');
+    }
+
     function exportData() {
-      // --- ЛОГИКА LITE-ВЕРСИИ: Проверка доступа к экспорту ---
       if (!isPremium) {
-          alert('Экспорт данных доступен только в полной версии. Обратитесь к разработчику для активации.');
-          showContactDeveloperModal(); // Показываем модальное окно обращения к разработчику
+          alert('Экспорт данных доступен только в полной версии.');
+          showContactDeveloperPromptModal(); 
           return;
       }
-      // --- КОНЕЦ ЛОГИКИ LITE-ВЕРСИИ ---
-
       if (!checkStorage()) { alert('Нет доступа к хранилищу для экспорта'); return; }
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
       const downloadAnchorNode = document.createElement('a');
@@ -1029,25 +1037,21 @@
     }
 
     function triggerImport() {
-      // --- ЛОГИКА LITE-ВЕРСИИ: Проверка доступа к импорту ---
       if (!isPremium) {
-          alert('Импорт данных доступен только в полной версии. Обратитесь к разработчику для активации.');
-          showContactDeveloperModal(); // Показываем модальное окно обращения к разработчику
+          alert('Импорт данных доступен только в полной версии.');
+          showContactDeveloperPromptModal(); 
           return;
       }
-      // --- КОНЕЦ ЛОГИКИ LITE-ВЕРСИИ ---
       document.getElementById('fileInput').click();
     }
 
     function handleFileImport(input) {
-      // --- ЛОГИКА LITE-ВЕРСИИ: Проверка доступа к импорту (дополнительно) ---
       if (!isPremium) {
-          alert('Импорт данных доступен только в полной версии. Обратитесь к разработчику для активации.');
-          input.value = ''; // Очищаем поле ввода
-          showContactDeveloperModal(); // Показываем модальное окно обращения к разработчику
+          alert('Импорт данных доступен только в полной версии.');
+          input.value = ''; 
+          showContactDeveloperPromptModal(); 
           return;
       }
-      // --- КОНЕЦ ЛОГИКИ LITE-ВЕРСИИ ---
 
       const file = input.files[0];
       if (!file) return;
@@ -1068,138 +1072,6 @@
       reader.readAsText(file);
       input.value = '';
     }
-
-    // --- НОВАЯ ЛОГИКА ОПЛАТЫ И АКТИВАЦИИ (СИМУЛЯЦИЯ) ---
-    function showContactDeveloperModal() {
-        const html = `
-            <div class="premium-modal-content">
-                <h3>Полная версия приложения</h3>
-                <p>Для снятия ограничений и получения полного доступа к функциям приложения, пожалуйста, оплатите <b>${SBP_AMOUNT} ₽</b>.</p>
-                <p>После успешной оплаты на указанный вами телефон будет выслан уникальный код активации.</p>
-                <div class="input-group">
-                    <label class="input-label">Ваш номер телефона (для получения кода)</label>
-                    <input type="tel" id="user_phone_number" placeholder="+7 (XXX) XXX-XX-XX" inputmode="tel">
-                </div>
-                <div class="btn-row">
-                    <button class="btn-secondary" onclick="closeModal()">Отмена</button>
-                    <button class="btn-primary" onclick="initiatePaymentFlow()">Перейти к оплате</button>
-                </div>
-            </div>
-        `;
-        document.getElementById('modal-content').innerHTML = html;
-        document.getElementById('modal').classList.add('visible');
-        document.body.classList.add('modal-open');
-    }
-
-    function initiatePaymentFlow() {
-        const userPhoneNumber = document.getElementById('user_phone_number').value.trim();
-        if (!userPhoneNumber) {
-            alert('Пожалуйста, введите ваш номер телефона.');
-            return;
-        }
-
-        // Базовая валидация номера телефона
-        const cleanedPhoneNumber = userPhoneNumber.replace(/[\s()-]/g, '');
-        if (!/^\+?\d{10,12}$/.test(cleanedPhoneNumber)) {
-            alert('Пожалуйста, введите корректный номер телефона (например, +79XXXXXXXXX).');
-            return;
-        }
-
-        // --- ВАЖНО: ЭТО КЛИЕНТСКАЯ СИМУЛЯЦИЯ ОПЛАТЫ ---
-        // Реальная интеграция СБП требует бэкенда для безопасного формирования платежной ссылки
-        // и верификации платежа. Эта ссылка может не работать универсально.
-        // Пример упрощенной SBP-ссылки (может требовать специфического синтаксиса для разных банков)
-        const sbpLink = `https://pay.raif.ru/qr/?sum=${SBP_AMOUNT}&info=SalaryAppActivation&bank_name=Sberbank&recipient_phone=${SBP_PHONE_NUMBER}`; 
-        // Для Сбербанка и некоторых других банков глубокая ссылка может быть другой, например:
-        // const sbpLink = `sberbankonline://transfer?phoneNumber=${SBP_PHONE_NUMBER}&amount=${SBP_AMOUNT}&comment=Активация_Зарплата2026`;
-        // Или просто текстовые инструкции: "Переведите ${SBP_AMOUNT} ₽ по номеру ${SBP_PHONE_NUMBER} (Сбербанк)."
-
-        // Сохраняем номер телефона для последующей (симулированной) привязки кода
-        sessionStorage.setItem('temp_payment_phone', cleanedPhoneNumber);
-
-        const html = `
-            <div class="premium-modal-content">
-                <h3>Инструкции по оплате</h3>
-                <p>Для активации полной версии приложения, переведите <b>${SBP_AMOUNT} ₽</b> через СБП на номер <b>+${SBP_PHONE_NUMBER}</b>.</p>
-                <p>
-                    <a href="${sbpLink}" target="_blank" class="btn-primary" style="display:block; text-decoration:none; margin-bottom:10px;">Перейти к оплате (${SBP_AMOUNT} ₽)</a>
-                </p>
-                <p style="font-size:12px; color:var(--text-sec); margin-top: 15px;">
-                    <b>Важно:</b> После успешной оплаты, на номер <b>${cleanedPhoneNumber}</b> будет выслан уникальный код активации. Дождитесь его получения перед вводом.
-                    <br>
-                    В реальном приложении это требует серверной интеграции для генерации кода и проверки платежа. Здесь это демонстрируется упрощенно.
-                </p>
-                <div class="btn-row">
-                    <button class="btn-secondary" onclick="closeModal()">Отмена</button>
-                    <button class="btn-primary" onclick="showActivationCodeInput()">У меня есть код активации</button>
-                </div>
-            </div>
-        `;
-        document.getElementById('modal-content').innerHTML = html;
-        document.getElementById('modal').classList.add('visible');
-        document.body.classList.add('modal-open');
-    }
-
-    function showActivationCodeInput() {
-        const html = `
-            <div class="premium-modal-content">
-                <h3>Введите код активации</h3>
-                <p>Введите код, который был выслан на ваш номер телефона после оплаты.</p>
-                <div class="input-group">
-                    <label class="input-label">Код активации</label>
-                    <input type="text" id="activation_code_input" placeholder="XXXX-XXXX-XXXX" autocapitalize="characters">
-                </div>
-                <p style="font-size:12px; color:var(--text-sec); margin-top: 15px;">
-                    <b>Для демонстрации:</b> Используйте код "<b>${LITE_ACTIVATION_CODE_DEMO}</b>".
-                    В реальном приложении код будет уникальным и привязан к вашему номеру.
-                </p>
-                <div class="btn-row">
-                    <button class="btn-secondary" onclick="closeModal()">Отмена</button>
-                    <button class="btn-primary" onclick="attemptActivation()">Активировать</button>
-                </div>
-            </div>
-        `;
-        document.getElementById('modal-content').innerHTML = html;
-        document.getElementById('modal').classList.add('visible');
-        document.body.classList.add('modal-open');
-    }
-
-    function attemptActivation() {
-        const enteredCode = document.getElementById('activation_code_input').value.trim();
-        const storedPhoneNumber = sessionStorage.getItem('temp_payment_phone'); // Получаем сохраненный номер
-
-        if (!enteredCode) {
-            alert('Пожалуйста, введите код активации.');
-            return;
-        }
-
-        // --- СИМУЛЯЦИЯ ЛОГИКИ АКТИВАЦИИ ---
-        // В реальном приложении:
-        // 1. Код и номер телефона отправляются на бэкенд.
-        // 2. Бэкенд проверяет код (уникальность, неактивирован ли, привязан ли к этому номеру).
-        // 3. Отмечает код как использованный.
-        // 4. Возвращает статус успешной/неуспешной активации.
-
-        // Для данной клиентской демонстрации используем жестко заданный код.
-        if (enteredCode === LITE_ACTIVATION_CODE_DEMO) { // Замените на реальную проверку бэкенда
-            localStorage.setItem('is_premium', 'true');
-            isPremium = true;
-            closeModal();
-            sessionStorage.removeItem('temp_payment_phone'); // Очищаем временный номер
-
-            alert('Приложение успешно активировано! Добро пожаловать в полную версию.');
-            updateAppDisplayTitle();
-            if (currentMonth) {
-                showMonth(currentMonth);
-            } else {
-                renderMonthList();
-            }
-        } else {
-            alert('Неверный код активации. Пожалуйста, проверьте код или свяжитесь с разработчиком.');
-        }
-    }
-    // --- КОНЕЦ НОВОЙ ЛОГИКИ ОПЛАТЫ И АКТИВАЦИИ ---
-
 
     // ЖЕСТЫ СМАХИВАНИЯ
     let touchStartX = 0;
@@ -1239,7 +1111,7 @@
       if (!checkStorage()) {
         setTimeout(() => alert('Внимание: LocalStorage недоступен. Данные не будут сохраняться после закрытия вкладки.'), 1000);
       }
-      renderMonthList(); // Это вызовет updateAppDisplayTitle для начального отображения заголовка
+      renderMonthList(); 
     });
 
   </script>
